@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.3.1/cosmo/bootstrap.min.css">
+  <link rel="stylesheet" href="css/main.css">
+<head>
+  <title>Listar Facturas</title>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container p-2">
+        <a class="navbar-brand" href="/"><h1>Listar Facturas por Fecha y Categoría</h1></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Regresar</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container p-4">
+  <form method="GET" target="/list" class="card card-body">
+    <div class="form-group">
+      <label for="title">Categoría que pertenece</label>
+      <select name="category" required>
+        <option value="Categoria1">Comida</option>
+        <option value="Categoria2">Bancos</option>
+        <option value="Categoria3">Servicios</option>
+        <option value="Categoria4">Belleza y Salud</option>
+        <option value="Categoria5">Ropa y accesorios</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="startDate">Fecha de inicio:</label>
+      <input type="date" id="startDate" name="startDate" required>
+      <label for="endDate">Fecha de fin:</label>
+      <input type="date" id="endDate" name="endDate" required>
+    </div>
+    <input type="submit" value="Buscar" class="btn btn-primary"><br>
+    <a href="/">Volver a la página principal</a>
+  </form>
+  <div class="container p-4">
+    <% if (facturas.length > 0) { %>
+      <h2>Total de la Categoría : $<%= totalGeneral.toFixed(2) %></h2>
+      <div class="row">
+        <% let currentCategory = ''; %>
+        <% let totalValue = 0; %>
+        <% facturas.forEach((factura, index) => { %>
+          <% if (factura.category !== currentCategory) { %>
+            <% if (currentCategory !== '') { %>
+              <div class="col-12">
+                <h2><%= currentCategory %> = $<%= totalValue.toFixed(2) %></h2>
+              </div>
+            <% } %>
+            <% totalValue = 0; %>
+            <% currentCategory = factura.category; %>
+          <% } %>
+          
+          <div class="col-md-4" style="margin-bottom: 20px;">
+            <div class="card">
+              <div class="card-body">
+                <h3 class="card-title"><%= factura.title %></h3>
+                <p class="card-text">Fecha: <%= factura.formattedDate %></p>
+                <p class="card-text">Valor: $<%= factura.valor.toFixed(2) %></p>
+                <a href="<%= factura.image_url %>" target="_blank" class="card-link">
+                  <img src="<%= factura.image_url %>" alt="Factura" class="img-fluid">
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <% totalValue += factura.valor; %>
+          <% if ((index + 1) % 3 === 0) { %>
+            <div class="w-100"></div>
+          <% } %>
+        <% }) %>
+        <div class="col-12">
+          <h2><%= currentCategory %> = $<%= totalValue.toFixed(2) %></h2>
+        </div>
+      </div>
+    <% } else { %>
+      <p>No se encontraron facturas en el rango de fechas y categorías seleccionadas.</p>
+    <% } %>
+  </div>
+</body>
+</html>
