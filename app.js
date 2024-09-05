@@ -109,7 +109,7 @@ app.get('/new', (req, res) => {
 app.post('/new-entry', upload.single('image'), (req, res) => {
   const { title, category, valor, date } = req.body;
   // const image_url = `/uploads/${req.file.filename}`;
-  const image_url = `https://srv1180-files.hstgr.io/31776f30a63414d4/files/public_html/inv/uploads/${req.file.filename}`;
+  const image_url = `https:simaritech.com/inv/uploads/${req.file.filename}`;
 
   const factura = { title, category, valor, image_url, date };
 
