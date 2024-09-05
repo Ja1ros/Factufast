@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const port = process.env.PORT || 4000;
 const moment = require('moment');
 moment.locale('es');
 
@@ -137,6 +138,6 @@ app.post('/delete-entry/:id', (req, res) => {
   });
 });
 
-app.listen(3000, () => {
-  console.log('Server running on port 3000');
+app.listen(port, () => {
+  console.log('Server running on port');
 });
