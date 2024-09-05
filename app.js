@@ -84,7 +84,7 @@ app.get('/list', (req, res) => {
       Categoria2: 'Bancos',
       Categoria3: 'Servicios',
       Categoria4: 'Belleza y Salud',
-      Categoria5: 'Ropa y Accesorios',
+      Categoria5: 'Ropa y varios',
     };
 
     const facturas = results.map(factura => ({
