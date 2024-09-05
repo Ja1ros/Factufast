@@ -25,7 +25,7 @@ const pool = mysql.createPool(dbConfig);
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/');
+    cb(null, path.join('/home/u585281285/domains/simaritech.com/public_html/inv/uploads'));
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + path.extname(file.originalname));
@@ -108,7 +108,9 @@ app.get('/new', (req, res) => {
 
 app.post('/new-entry', upload.single('image'), (req, res) => {
   const { title, category, valor, date } = req.body;
-  const image_url = `/uploads/${req.file.filename}`;
+  // const image_url = `/uploads/${req.file.filename}`;
+  const image_url = `https://srv1180-files.hstgr.io/31776f30a63414d4/files/public_html/inv/uploads/${req.file.filename}`;
+
   const factura = { title, category, valor, image_url, date };
 
   const query = 'INSERT INTO facturas SET ?';
