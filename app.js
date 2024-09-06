@@ -25,7 +25,7 @@ const pool = mysql.createPool(dbConfig);
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join('/home/u585281285/domains/simaritech.com/public_html/inv/uploads'));
+    cb(null, 'uploads/');
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + path.extname(file.originalname));
@@ -40,18 +40,6 @@ app.get('/', (req, res) => {
     res.render('index', { facturas: results });
   });
 });
-
-// app.get('/list', (req, res) => {
-//   const { startDate, endDate } = req.query;
-//   if (startDate && endDate) {
-//     pool.query('SELECT * FROM facturas WHERE date BETWEEN ? AND ? ORDER BY date DESC', [startDate, endDate], (err, results) => {
-//       if (err) throw err;
-//       res.render('list', { facturas: results });
-//     });
-//   } else {
-//     res.render('list', { facturas: [] });
-//   }
-// });
 
 app.get('/list', (req, res) => {
   const { startDate, endDate, category } = req.query;
@@ -100,6 +88,52 @@ app.get('/list', (req, res) => {
   });
 });
 
+app.get('/datos', (req, res) => {
+  const { startDate, endDate } = req.query;
+
+  let query = `
+    SELECT category, title, date, image_url, valor
+    FROM facturas 
+    WHERE date BETWEEN ? AND ?
+  `;
+
+  const params = [startDate, endDate];
+
+  query += ` ORDER BY category, date DESC`;
+
+  pool.query(query, params, (err, results) => {
+    if (err) throw err;
+
+    const categoryMap = {
+      Categoria1: 'Comida',
+      Categoria2: 'Bancos',
+      Categoria3: 'Servicios',
+      Categoria4: 'Belleza y Salud',
+      Categoria5: 'Ropa y varios',
+    };
+
+    const facturas = results.map(factura => ({
+      ...factura,
+      category: categoryMap[factura.category],
+      formattedDate: moment(factura.date).format('dddd, D [de] MMMM')  // Formato de fecha
+    }));
+
+    // Calcular el total general
+    const totalGeneral = facturas.reduce((acc, factura) => acc + factura.valor, 0);
+
+    // Calcular el total por categoría y el conteo de facturas
+    const totalPorCategoria = facturas.reduce((acc, factura) => {
+      if (!acc[factura.category]) {
+        acc[factura.category] = { total: 0, count: 0 };
+      }
+      acc[factura.category].total += factura.valor;
+      acc[factura.category].count += 1;
+      return acc;
+    }, {});
+
+    res.render('datos', { facturas, totalGeneral, totalPorCategoria });
+  });
+});
 
 
 app.get('/new', (req, res) => {
@@ -108,9 +142,7 @@ app.get('/new', (req, res) => {
 
 app.post('/new-entry', upload.single('image'), (req, res) => {
   const { title, category, valor, date } = req.body;
-  // const image_url = `/uploads/${req.file.filename}`;
-  const image_url = `https:simaritech.com/inv/uploads/${req.file.filename}`;
-
+  const image_url = `/uploads/${req.file.filename}`;
   const factura = { title, category, valor, image_url, date };
 
   const query = 'INSERT INTO facturas SET ?';
